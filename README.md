@@ -1,6 +1,6 @@
 # ClusterLoadBalancer
 
-WIP - A way to load balance resources in your cluster. Most notably, this can be used with WebSockets to
+WIP - A way to load balance resources in your Elixir cluster. Most notably, this can be used with WebSockets to
 ensure that a cluster becomes load balanced after a rolling deploy.
 
 ## How it works

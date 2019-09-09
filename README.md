@@ -1,3 +1,7 @@
+# Disclaimer
+
+This project is not currently licensed and may be pulled down. This is mainly to get feedback on the approach.
+
 # ClusterLoadBalancer
 
 WIP - A way to load balance resources in your Elixir cluster. Most notably, this can be used with WebSockets to

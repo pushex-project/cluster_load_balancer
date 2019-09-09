@@ -3,6 +3,24 @@
 WIP - A way to load balance resources in your cluster. Most notably, this can be used with WebSockets to
 ensure that a cluster becomes load balanced after a rolling deploy.
 
+## How it works
+
+Every N seconds (configurable), each node in your cluster asks all other nodes for their current resource
+count. An Implementation module provides the resource count. Each node collects answers from all of the other
+nodes and will process the data when it gets a complete set of answers.[1] The node with the most number of
+resources[2] will check to see if it's within an allowed range. If it is, nothing happens. If it has too many
+resources, then the Implementation module is called to kill off a certain number of processes.[3] This repeats
+and eventually the cluster will reach a steady state where nothing happens each round.
+
+[1] If a complete set of data isn't provided (less nodes respond than known), then the round is discarded and nothing
+happens.
+
+[2] Nodes that tie for highest resource count use a random number to break the tie. There will only be one "max" node.
+The random number is the same for the life of the resource process, so in practice it will be static until nodes reboot.
+
+[3] Pretty much every number involved in a round is configurable. The duration of the round, the max / min number of
+killed processes, the acceptable range, etc.
+
 ## Installation (TODO)
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed

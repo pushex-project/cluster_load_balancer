@@ -33,6 +33,15 @@ def deps do
 end
 ```
 
+## Start pg
+
+You must start the pg communication process. Add this to your application, before the ClusterLoadBalancer entry that
+you'll add below:
+
+```
+%{id: :pg, start: {:pg, :start_link, [ClusterLoadBalancer]}}
+```
+
 ## Config
 
 ClusterLoadBalancer comes with a default config that may be acceptable for many applications. You can customize

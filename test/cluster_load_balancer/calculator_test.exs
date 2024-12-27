@@ -13,11 +13,11 @@ defmodule ClusterLoadBalancer.CalculatorTest do
   }
 
   defp generate_self_collection(count) do
-    Collection.init("test", nil, nil, Collection.init_result(nil, count, nil))
+    Collection.init({ClusterLoadBalancer, "test"}, nil, nil, Collection.init_result(nil, count, nil))
   end
 
   defp generate_multi_collection(self: {count, rand}, remotes: counts) when is_list(counts) do
-    col = Collection.init("test", nil, nil, Collection.init_result(nil, count, rand))
+    col = Collection.init({ClusterLoadBalancer, "test"}, nil, nil, Collection.init_result(nil, count, rand))
 
     Enum.reduce(counts, col, fn {count, rand}, col ->
       Collection.add_result(col, Collection.init_result(nil, count, rand))
@@ -25,7 +25,7 @@ defmodule ClusterLoadBalancer.CalculatorTest do
   end
 
   defp generate_multi_collection(self: count, remotes: counts) when is_list(counts) do
-    col = Collection.init("test", nil, nil, Collection.init_result(nil, count, nil))
+    col = Collection.init({ClusterLoadBalancer, "test"}, nil, nil, Collection.init_result(nil, count, nil))
 
     Enum.reduce(counts, col, fn count, col ->
       Collection.add_result(col, Collection.init_result(nil, count, nil))

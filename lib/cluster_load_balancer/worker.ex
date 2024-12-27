@@ -11,7 +11,7 @@ defmodule ClusterLoadBalancer.Worker do
 
   def init(opts) when is_list(opts) do
     namespace = Keyword.fetch!(opts, :namespace)
-    topic = subscribe_to_pg2(namespace)
+    topic = subscribe_to_pg(namespace)
 
     config = %Config{
       impl: Keyword.fetch!(opts, :implementation),
@@ -51,7 +51,7 @@ defmodule ClusterLoadBalancer.Worker do
   end
 
   @doc false
-  def handle_cast({:collect_result, result = %Collection.Result{tick: tick}}, state = %{config: config, tick: self_tick, tick_state: tick_state, topic: topic})
+  def handle_cast({:collect_result, result = %Collection.Result{tick: tick}}, state = %{config: config, tick: self_tick, tick_state: tick_state, topic: {topic, namespace}})
       when tick == self_tick do
     new_state = Collection.add_result(tick_state, result)
 
@@ -61,7 +61,7 @@ defmodule ClusterLoadBalancer.Worker do
           count = Collection.participant_count(new_state)
           amount_to_correct_by = Calculator.amount_to_correct_by(new_state, config)
           correct_deviation(config, amount_to_correct_by)
-          Logger.debug("#{topic} round finalized with #{count} participants, amount_to_correct_by=#{amount_to_correct_by}")
+          Logger.debug("#{topic}.#{namespace} round finalized with #{count} participants, amount_to_correct_by=#{amount_to_correct_by}")
           nil
 
         _ ->
@@ -72,8 +72,8 @@ defmodule ClusterLoadBalancer.Worker do
   end
 
   @doc false
-  def handle_cast({:collect_result, _}, state = %{topic: topic}) do
-    Logger.error("#{topic} collect_result delivered too slow")
+  def handle_cast({:collect_result, _}, state = %{topic: {topic, namespace}}) do
+    Logger.error("#{topic}.#{namespace} collect_result delivered too slow")
     {:noreply, state}
   end
 
@@ -94,10 +94,9 @@ defmodule ClusterLoadBalancer.Worker do
     end)
   end
 
-  defp on_remote_nodes(topic, func) do
-    topic
-    |> :pg2.get_members()
-    |> Kernel.--(:pg2.get_local_members(topic))
+  defp on_remote_nodes({topic, namespace}, func) do
+    :pg.get_members(topic, namespace)
+    |> Kernel.--(:pg.get_local_members(topic, namespace))
     |> Enum.map(func)
     |> length()
   end
@@ -106,11 +105,10 @@ defmodule ClusterLoadBalancer.Worker do
     Collection.init_result(tick, impl_mod.count(), tie_breaker)
   end
 
-  defp subscribe_to_pg2(namespace) do
-    topic = String.to_atom("#{__MODULE__}.#{namespace}")
-    :ok = :pg2.create(topic)
-    :ok = :pg2.join(topic, self())
-    topic
+  defp subscribe_to_pg(namespace) do
+    topic = ClusterLoadBalancer
+    :ok = :pg.join(topic, namespace, self())
+    {topic, namespace}
   end
 
   defp schedule_tick(topic, %{round_duration_seconds: timeout}, prev_state) do

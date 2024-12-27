@@ -87,7 +87,7 @@ end
 
 ## Communication
 
-ClusterLoadBalancer uses pg2 to communicate between nodes. This means that your cluster *must* be connected
+ClusterLoadBalancer uses :pg to communicate between nodes. This means that your cluster *must* be connected
 directly and not through a PubSub interface like Redis. If you are not able to cluster your nodes together, a
-change to leverage `Phoenix.PubSub` could help. pg2 is being used currently because it easily allows a count
+change to leverage `Phoenix.PubSub` could help. :pg is being used currently because it easily allows a count
 of the number of connected processes across the cluster.

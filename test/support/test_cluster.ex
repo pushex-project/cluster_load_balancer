@@ -4,11 +4,17 @@ defmodule TestCluster do
   def start_nodes(number) do
     Enum.each(1..number, fn index ->
       with_deadline(30_000, fn ->
-        # create a slave node
-        {:ok, node} = :slave.start_link(:localhost, 'slave_#{index}', '-env MIX_ENV test')
+        # create a peer node
+        {:ok, _pid, node} = :peer.start_link(%{
+          host: 'localhost',
+          name: 'peer_#{index}',
+          args: [~c"-env", ~c"MIX_ENV", ~c"test"]
+        })
+
         add_code_paths(node)
         transfer_configuration(node)
         ensure_applications_started(node)
+        {:ok, _pid} = rpc(node, :pg, :start_link, [ClusterLoadBalancer])
       end)
     end)
 
@@ -77,7 +83,7 @@ defmodule TestCluster do
           ^ref -> :ok
         after
           timeout ->
-            Logger.error("Deadline for starting slave node reached")
+            Logger.error("Deadline for starting peer node reached")
             Process.exit(parent, :kill)
         end
       end)

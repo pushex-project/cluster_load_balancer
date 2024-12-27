@@ -41,7 +41,7 @@ defmodule ClusterLoadBalancer.WorkerTest do
                 rand: rand,
                 tick: 0,
                 tick_state: nil,
-                topic: :"Elixir.ClusterLoadBalancer.Worker.test"
+                topic: {ClusterLoadBalancer, :test}
               }} = Worker.init(namespace: :test, implementation: nil)
 
       assert rand >= 0 && rand <= 1
@@ -61,7 +61,7 @@ defmodule ClusterLoadBalancer.WorkerTest do
                 rand: rand,
                 tick: 0,
                 tick_state: nil,
-                topic: :"Elixir.ClusterLoadBalancer.Worker.test"
+                topic: {ClusterLoadBalancer, :test}
               }} =
                Worker.init(
                  namespace: :test,
@@ -118,7 +118,7 @@ defmodule ClusterLoadBalancer.WorkerTest do
                  tick: 1
                },
                tick: 1,
-               topic: :"Elixir.ClusterLoadBalancer.Worker.test"
+               topic: {ClusterLoadBalancer, :test}
              }
 
       # Another tick is scheduled
@@ -146,7 +146,7 @@ defmodule ClusterLoadBalancer.WorkerTest do
 
       assert capture_log(fn ->
                assert {:noreply, ^state} = Worker.handle_cast({:collect_result, result}, state)
-             end) =~ "Elixir.ClusterLoadBalancer.Worker.test collect_result delivered too slow"
+             end) =~ "Elixir.ClusterLoadBalancer.test collect_result delivered too slow"
     end
 
     test "result.tick == state.tick adds the result to the collection" do
@@ -171,7 +171,7 @@ defmodule ClusterLoadBalancer.WorkerTest do
 
                # The tick_state is finalized so was removed
                assert final_state.tick_state == nil
-             end) =~ "[debug] Elixir.ClusterLoadBalancer.Worker.test round finalized with 3 participants, amount_to_correct_by=100"
+             end) =~ "[debug] Elixir.ClusterLoadBalancer.test round finalized with 3 participants, amount_to_correct_by=100"
 
       assert_receive {:kill_processes_mock, 100}
     end

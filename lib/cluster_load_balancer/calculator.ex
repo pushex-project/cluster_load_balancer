@@ -10,11 +10,11 @@ defmodule ClusterLoadBalancer.Calculator do
   if the current node doesn't meet the criteria for shedding or if it would shed an amount less than
   the configured minimum.
   """
-  def amount_to_correct_by(collection = %Collection{topic: topic}, config = %Config{}) do
+  def amount_to_correct_by(collection = %Collection{topic: {topic, namespace}}, config = %Config{}) do
     if should_shed?(collection, config) do
       shed_amount(collection, config)
     else
-      Logger.debug("#{topic} should_shed?=false")
+      Logger.debug("#{topic}.#{namespace} should_shed?=false")
       0
     end
   end
@@ -28,7 +28,8 @@ defmodule ClusterLoadBalancer.Calculator do
     max_allowed_count = average_count + config.allowed_average_deviation_percent / 100 * average_count
     outside_allowed_deviation? = self_count > max_allowed_count
 
-    Logger.debug("#{collection.topic} highest_count?=#{inspect(highest_count?)} avg=#{average_count} self=#{self_count} max_allowed_count=#{max_allowed_count}")
+    {topic, namespace} = collection.topic
+    Logger.debug("#{topic}.#{namespace} highest_count?=#{inspect(highest_count?)} avg=#{average_count} self=#{self_count} max_allowed_count=#{max_allowed_count}")
 
     highest_count? && outside_allowed_deviation?
   end
@@ -42,8 +43,9 @@ defmodule ClusterLoadBalancer.Calculator do
     shed_amount = min(config.max_shed_count, calc_shed_amount)
     will_shed? = shed_amount >= config.min_shed_count
 
+    {topic, namespace} = collection.topic
     Logger.debug(
-      "#{collection.topic} highest=true shed_amount=#{shed_amount} [calc,min,max]=[#{calc_shed_amount}, #{config.min_shed_count}, #{config.max_shed_count}] will_shed=#{
+      "#{topic}.#{namespace} highest=true shed_amount=#{shed_amount} [calc,min,max]=[#{calc_shed_amount}, #{config.min_shed_count}, #{config.max_shed_count}] will_shed=#{
         will_shed?
       }"
     )

@@ -8,7 +8,14 @@ defmodule ClusterLoadBalancer.MixProject do
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: "Load balance resources in your Elixir cluster (like WebSockets after a rolling deploy)",
+      package: [
+        maintainers: ["Steve Bussey"],
+        licenses: ["MIT"],
+        links: %{github: "https://github.com/pushex-project/cluster_load_balancer"},
+        files: ~w(lib) ++ ~w(mix.exs README.md)
+      ]
     ]
   end
 
@@ -19,7 +26,9 @@ defmodule ClusterLoadBalancer.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

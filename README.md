@@ -1,10 +1,6 @@
-# Disclaimer
-
-This project is not currently licensed and may be pulled down. This is mainly to get feedback on the approach.
-
 # ClusterLoadBalancer
 
-WIP - A way to load balance resources in your Elixir cluster. Most notably, this can be used with WebSockets to
+A way to load balance resources in your Elixir cluster. Most notably, this can be used with WebSockets to
 ensure that a cluster becomes load balanced after a rolling deploy.
 
 ## How it works
@@ -25,24 +21,19 @@ The random number is the same for the life of the resource process, so in practi
 [3] Pretty much every number involved in a round is configurable. The duration of the round, the max / min number of
 killed processes, the acceptable range, etc.
 
-## Installation (TODO)
+## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `cluster_load_balancer` to your list of dependencies in `mix.exs`:
+This package can be installed by adding `cluster_load_balancer` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:cluster_load_balancer, "TODO"}
+    {:cluster_load_balancer, "~> 1.0.0"}
   ]
 end
 ```
 
-## Documentation (TODO)
-
-Some stuff below, but TODO
-
-### Config
+## Config
 
 ClusterLoadBalancer comes with a default config that may be acceptable for many applications. You can customize
 many of the parameters for your particular application. `namespace` and `implementation` are required configuration
@@ -65,7 +56,7 @@ A ClusterLoadBalancer can be started in a Supervisor. There are no `Mix.Config` 
 }
 ```
 
-### Example Usage
+## Example Usage
 
 I am using this tool with PushEx, which is based on Phoenix Channels. It provides the ability to get a count
 of the connected sockets, and Phoenix gives a disconnection event to kill a Socket (but the client will reconnect).
@@ -94,7 +85,7 @@ defmodule PushExClusterLoadBalancer do
 end
 ```
 
-### Communication
+## Communication
 
 ClusterLoadBalancer uses pg2 to communicate between nodes. This means that your cluster *must* be connected
 directly and not through a PubSub interface like Redis. If you are not able to cluster your nodes together, a

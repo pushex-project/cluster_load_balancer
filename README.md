@@ -39,7 +39,7 @@ You must start the pg communication process. Add this to your application, befor
 you'll add below:
 
 ```
-%{id: :pg, start: {:pg, :start_link, [ClusterLoadBalancer]}}
+%{id: :pg_clb, start: {:pg, :start_link, [ClusterLoadBalancer]}}
 ```
 
 ## Config
